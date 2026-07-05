@@ -1,8 +1,37 @@
 import type { Participant, Assignment, Game } from '../types';
 
+export interface PlayerLinkData {
+  playerName: string;
+  secretFriend: string;
+  hostName: string;
+}
+
 /** Generates a random ID */
 export function generateId(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+function toUrlSafeBase64(str: string): string {
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function fromUrlSafeBase64(str: string): string {
+  const padded = str + '=='.slice((str.length + 3) % 4);
+  return atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
+}
+
+/** Encodes player assignment data into a URL-safe base64 string */
+export function encodePlayerData(data: PlayerLinkData): string {
+  return toUrlSafeBase64(encodeURIComponent(JSON.stringify(data)));
+}
+
+/** Decodes player assignment data from a URL-safe base64 string */
+export function decodePlayerData(encoded: string): PlayerLinkData | null {
+  try {
+    return JSON.parse(decodeURIComponent(fromUrlSafeBase64(encoded))) as PlayerLinkData;
+  } catch {
+    return null;
+  }
 }
 
 /**

@@ -7,7 +7,7 @@ export default function App() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<HostPage />} />
-        <Route path="/jugar/:gameId/:playerId" element={<PlayerPage />} />
+        <Route path="/jugar/:encoded" element={<PlayerPage />} />
       </Routes>
     </HashRouter>
   );

@@ -1,39 +1,27 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { loadGame, getAssignment } from '../utils/draw';
-import type { Game } from '../types';
+import { decodePlayerData } from '../utils/draw';
+import type { PlayerLinkData } from '../utils/draw';
 
 export default function PlayerPage() {
-  const { gameId, playerId } = useParams<{ gameId: string; playerId: string }>();
-  const [game, setGame] = useState<Game | null>(null);
-  const [playerName, setPlayerName] = useState<string>('');
-  const [secretFriend, setSecretFriend] = useState<string | null>(null);
+  const { encoded } = useParams<{ encoded: string }>();
+  const [data, setData] = useState<PlayerLinkData | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    if (!gameId || !playerId) {
+    if (!encoded) {
       setNotFound(true);
       return;
     }
-    const loadedGame = loadGame(gameId);
-    if (!loadedGame) {
+    const decoded = decodePlayerData(encoded);
+    if (!decoded || !decoded.playerName || !decoded.secretFriend) {
       setNotFound(true);
       return;
     }
-    setGame(loadedGame);
-
-    const participant = loadedGame.participants.find((p) => p.id === playerId);
-    if (!participant) {
-      setNotFound(true);
-      return;
-    }
-    setPlayerName(participant.name);
-
-    const friend = getAssignment(loadedGame, playerId);
-    setSecretFriend(friend);
-  }, [gameId, playerId]);
+    setData(decoded);
+  }, [encoded]);
 
   function handleReveal() {
     setRevealed(true);
@@ -63,7 +51,7 @@ export default function PlayerPage() {
     );
   }
 
-  if (!game) {
+  if (!data) {
     return (
       <div className="page-container">
         <div className="loading-spinner" aria-label="Cargando..." />
@@ -100,7 +88,7 @@ export default function PlayerPage() {
       <div className="card animate-fade-up">
         <div className="card__icon">🎁</div>
 
-        <p className="player-greeting">¡Hola, <strong>{playerName}</strong>!</p>
+        <p className="player-greeting">¡Hola, <strong>{data.playerName}</strong>!</p>
         <h1 className="card__title">Amigo Invisible</h1>
         <p className="card__subtitle">
           Tu amigo invisible ha sido sorteado.<br />
@@ -121,7 +109,7 @@ export default function PlayerPage() {
             <p className="reveal-label">Tu amigo invisible es…</p>
             <div className="reveal-name">
               <span className="reveal-emoji">🌟</span>
-              {secretFriend}
+              {data.secretFriend}
               <span className="reveal-emoji">🌟</span>
             </div>
             <p className="reveal-hint">
@@ -131,9 +119,9 @@ export default function PlayerPage() {
           </div>
         )}
 
-        {game.hostName && (
+        {data.hostName && (
           <p className="game-info">
-            Juego organizado por <strong>{game.hostName}</strong>
+            Juego organizado por <strong>{data.hostName}</strong>
           </p>
         )}
       </div>

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { generateId, drawSecretSanta, saveGame } from '../utils/draw';
+import { generateId, drawSecretSanta, saveGame, encodePlayerData } from '../utils/draw';
 import type { Participant, Game } from '../types';
 
 const HOST_PARTICIPANT_ID = 'host';
@@ -20,8 +20,7 @@ export default function HostPage() {
   const effectiveHostName = hostName.trim() || 'Anfitrión';
   const hostParticipant: Participant = { id: HOST_PARTICIPANT_ID, name: effectiveHostName };
   const totalParticipants = participants.length + 1; // host always counts
-  const isEven = totalParticipants % 2 === 0;
-  const canDraw = totalParticipants >= 2 && isEven;
+  const canDraw = totalParticipants >= 2;
 
   function addParticipant() {
     const trimmed = nameInput.trim();
@@ -49,10 +48,6 @@ export default function HostPage() {
   }
 
   async function handleDraw() {
-    if (!isEven) {
-      setError('El total de participantes debe ser un número par.');
-      return;
-    }
     if (totalParticipants < 2) {
       setError('Necesitás al menos 2 participantes para sortear.');
       return;
@@ -76,8 +71,19 @@ export default function HostPage() {
   }
 
   function getPlayerLink(participantId: string) {
+    if (!game) return '';
+    const participant = game.participants.find((p) => p.id === participantId);
+    if (!participant) return '';
+    const assignment = game.assignments.find((a) => a.giverId === participantId);
+    const receiver = assignment ? game.participants.find((p) => p.id === assignment.receiverId) : null;
+    if (!receiver) return '';
+    const encoded = encodePlayerData({
+      playerName: participant.name,
+      secretFriend: receiver.name,
+      hostName: game.hostName,
+    });
     const base = window.location.href.replace(/#.*$/, '');
-    return `${base}#/jugar/${game?.id}/${participantId}`;
+    return `${base}#/jugar/${encoded}`;
   }
 
   async function copyLink(participantId: string) {
@@ -183,11 +189,6 @@ export default function HostPage() {
         <div className="form-group">
           <label className="form-label" htmlFor="participantName">
             Participantes ({totalParticipants})
-            {!isEven && (
-              <span className="badge badge--warning" aria-label="Cantidad impar de participantes">
-                par requerido
-              </span>
-            )}
           </label>
           <div className="input-row">
             <input
@@ -255,11 +256,6 @@ export default function HostPage() {
           ¡Sortear!
         </button>
 
-        {!isEven && (
-          <p className="hint hint--warning">
-            ⚠️ Necesitás una cantidad <strong>par</strong> de participantes. Ahora hay {totalParticipants} (impar).
-          </p>
-        )}
       </div>
     </div>
   );
