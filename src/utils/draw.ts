@@ -16,7 +16,8 @@ function toUrlSafeBase64(str: string): string {
 }
 
 function fromUrlSafeBase64(str: string): string {
-  const padded = str + '=='.slice((str.length + 3) % 4);
+  const padding = (4 - str.length % 4) % 4;
+  const padded = str + '='.repeat(padding);
   return atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
 }
 
