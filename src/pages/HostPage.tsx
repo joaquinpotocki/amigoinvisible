@@ -143,6 +143,25 @@ export default function HostPage() {
           <p className="hint">
             💡 El link de cada persona es único y secreto. Solo ellos verán su amigo invisible.
           </p>
+
+          <div className="divider" />
+
+          <button
+            className="btn btn--ghost btn--large"
+            onClick={() => {
+              setStep('setup');
+              setGame(null);
+              setParticipants([]);
+              setHostName('');
+              setHasPriceLimit(false);
+              setPriceLimit('');
+              setCopiedId(null);
+              setError('');
+            }}
+          >
+            <span className="btn__icon">🔄</span>
+            Nuevo sorteo
+          </button>
         </div>
       </div>
     );
