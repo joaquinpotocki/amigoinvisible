@@ -4,6 +4,7 @@ export interface PlayerLinkData {
   playerName: string;
   secretFriend: string;
   hostName: string;
+  priceLimit?: string;
 }
 
 /** Generates a random ID */

@@ -112,6 +112,13 @@ export default function PlayerPage() {
               {data.secretFriend}
               <span className="reveal-emoji">🌟</span>
             </div>
+            {data.priceLimit && (
+              <div className="reveal-price animate-fade-up">
+                <span className="reveal-price__icon">💰</span>
+                <span className="reveal-price__label">Límite de precio:</span>
+                <span className="reveal-price__amount">${data.priceLimit}</span>
+              </div>
+            )}
             <p className="reveal-hint">
               ¡Guardá el secreto! 🤫<br />
               Pensá en algo especial para regalarle.

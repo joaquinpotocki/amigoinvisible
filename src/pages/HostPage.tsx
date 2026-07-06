@@ -15,6 +15,8 @@ export default function HostPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [isShuffling, setIsShuffling] = useState(false);
+  const [hasPriceLimit, setHasPriceLimit] = useState(false);
+  const [priceLimit, setPriceLimit] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const effectiveHostName = hostName.trim() || 'Anfitrión';
@@ -63,6 +65,7 @@ export default function HostPage() {
       participants: allParticipants,
       assignments,
       createdAt: new Date().toISOString(),
+      priceLimit: hasPriceLimit && priceLimit.trim() ? priceLimit.trim() : undefined,
     };
     saveGame(newGame);
     setGame(newGame);
@@ -81,6 +84,7 @@ export default function HostPage() {
       playerName: participant.name,
       secretFriend: receiver.name,
       hostName: game.hostName,
+      priceLimit: game.priceLimit,
     });
     const base = window.location.href.replace(/#.*$/, '');
     return `${base}#/jugar/${encoded}`;
@@ -182,6 +186,46 @@ export default function HostPage() {
             value={hostName}
             onChange={(e) => setHostName(e.target.value)}
           />
+        </div>
+
+        <div className="divider" />
+
+        <div className="price-limit-section">
+          <label className="price-limit-toggle" htmlFor="hasPriceLimit">
+            <span className="price-limit-toggle__icon">💰</span>
+            <span className="price-limit-toggle__text">¿Querés agregar un límite de precio al regalo?</span>
+            <span className={`toggle-switch${hasPriceLimit ? ' toggle-switch--on' : ''}`}>
+              <input
+                id="hasPriceLimit"
+                type="checkbox"
+                className="toggle-switch__input"
+                checked={hasPriceLimit}
+                onChange={(e) => {
+                  setHasPriceLimit(e.target.checked);
+                  if (!e.target.checked) setPriceLimit('');
+                }}
+              />
+              <span className="toggle-switch__thumb" />
+            </span>
+          </label>
+
+          {hasPriceLimit && (
+            <div className="price-limit-input animate-fade-up">
+              <label className="form-label" htmlFor="priceLimit">Monto máximo</label>
+              <div className="price-input-row">
+                <span className="price-prefix">$</span>
+                <input
+                  id="priceLimit"
+                  className="form-input price-input"
+                  type="number"
+                  min="0"
+                  placeholder="Ej: 5000"
+                  value={priceLimit}
+                  onChange={(e) => setPriceLimit(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="divider" />

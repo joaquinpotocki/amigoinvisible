@@ -14,4 +14,5 @@ export interface Game {
   participants: Participant[];
   assignments: Assignment[];
   createdAt: string;
+  priceLimit?: string;
 }
